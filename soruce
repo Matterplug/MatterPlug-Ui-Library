@@ -1,163 +1,50 @@
 -- MatterPlug UI Library
+
 local MatterPlugUI = {}
 
-function MatterPlugUI:CreateDropdown(parent, text, list, theme2, theme3, callback)
-    local dropdownFrame = Instance.new("Frame")
-    dropdownFrame.Parent = parent
-    dropdownFrame.BackgroundColor3 = theme2
-    dropdownFrame.Size = UDim2.new(0, 200, 0, 30)
+-- Create the window frame
+function MatterPlugUI:CreateWindow(title, size)
+    local window = Instance.new("Frame")
+    window.Name = "Window"
+    window.Size = size or UDim2.new(0.5, 0, 0.5, 0)
+    window.Position = UDim2.new(0.25, 0, 0.25, 0)
+    window.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+    window.BorderSizePixel = 0
+    window.AnchorPoint = Vector2.new(0.5, 0.5)
 
-    local dropdownText = Instance.new("TextLabel")
-    dropdownText.Parent = dropdownFrame
-    dropdownText.Text = text
-    dropdownText.Size = UDim2.new(1, 0, 1, 0)
-    dropdownText.TextColor3 = theme3
-    dropdownText.BackgroundTransparency = 1
+    -- Title bar for the window
+    local titleBar = Instance.new("TextLabel")
+    titleBar.Name = "TitleBar"
+    titleBar.Size = UDim2.new(1, 0, 0, 30)
+    titleBar.BackgroundColor3 = Color3.fromRGB(60, 60, 60)
+    titleBar.Text = title
+    titleBar.TextColor3 = Color3.fromRGB(255, 255, 255)
+    titleBar.TextSize = 18
+    titleBar.TextXAlignment = Enum.TextXAlignment.Center
+    titleBar.Parent = window
 
-    local dropdownButton = Instance.new("TextButton")
-    dropdownButton.Parent = dropdownFrame
-    dropdownButton.Text = "▼"
-    dropdownButton.Size = UDim2.new(0, 30, 1, 0)
-    dropdownButton.Position = UDim2.new(1, -30, 0, 0)
-    dropdownButton.BackgroundColor3 = theme3
+    window.Parent = game.Players.LocalPlayer.PlayerGui
 
-    local optionsFrame = Instance.new("Frame")
-    optionsFrame.Parent = dropdownFrame
-    optionsFrame.Size = UDim2.new(1, 0, #list, 0)
-    optionsFrame.Position = UDim2.new(0, 0, 1, 0)
-    optionsFrame.Visible = false
-
-    dropdownButton.MouseButton1Click:Connect(function()
-        optionsFrame.Visible = not optionsFrame.Visible
-    end)
-
-    for i, option in ipairs(list) do
-        local optionButton = Instance.new("TextButton")
-        optionButton.Parent = optionsFrame
-        optionButton.Text = option
-        optionButton.Size = UDim2.new(1, 0, 0, 30)
-        optionButton.BackgroundColor3 = theme2
-
-        optionButton.MouseButton1Click:Connect(function()
-            dropdownText.Text = option
-            optionsFrame.Visible = false
-            callback(option)
-        end)
-    end
+    return window
 end
 
-function MatterPlugUI:CreateSlider(parent, text, minvalue, maxvalue, theme2, theme3, callback)
-    local sliderFrame = Instance.new("Frame")
-    sliderFrame.Parent = parent
-    sliderFrame.BackgroundColor3 = theme2
-    sliderFrame.Size = UDim2.new(0, 300, 0, 50)
-
-    local sliderText = Instance.new("TextLabel")
-    sliderText.Parent = sliderFrame
-    sliderText.Text = text
-    sliderText.Size = UDim2.new(1, 0, 0.5, 0)
-    sliderText.TextColor3 = theme3
-    sliderText.BackgroundTransparency = 1
-
-    local sliderBar = Instance.new("Frame")
-    sliderBar.Parent = sliderFrame
-    sliderBar.BackgroundColor3 = theme3
-    sliderBar.Size = UDim2.new(0.8, 0, 0.2, 0)
-    sliderBar.Position = UDim2.new(0.1, 0, 0.7, 0)
-
-    local slider = Instance.new("TextButton")
-    slider.Parent = sliderBar
-    slider.BackgroundColor3 = theme2
-    slider.Size = UDim2.new(0, 20, 1.5, 0)
-    slider.Position = UDim2.new(0, 0, -0.25, 0)
-
-    local function updateSlider(input)
-        local position = math.clamp((input.Position.X - sliderBar.AbsolutePosition.X) / sliderBar.AbsoluteSize.X, 0, 1)
-        local value = math.floor(position * (maxvalue - minvalue) + minvalue)
-        slider.Position = UDim2.new(position, -10, slider.Position.Y.Scale, slider.Position.Y.Offset)
-        sliderText.Text = text .. ": " .. value
-        callback(value)
-    end
-
-    slider.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 then
-            updateSlider(input)
-        end
-    end)
-
-    slider.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement then
-            updateSlider(input)
-        end
-    end)
-end
-
-function MatterPlugUI:CreateToggle(parent, text, theme2, theme3, callback)
-    local toggleFrame = Instance.new("Frame")
-    toggleFrame.Parent = parent
-    toggleFrame.BackgroundColor3 = theme2
-    toggleFrame.Size = UDim2.new(0, 200, 0, 30)
-
-    local toggleText = Instance.new("TextLabel")
-    toggleText.Parent = toggleFrame
-    toggleText.Text = text
-    toggleText.Size = UDim2.new(0.8, 0, 1, 0)
-    toggleText.TextColor3 = theme3
-    toggleText.BackgroundTransparency = 1
-
-    local toggleButton = Instance.new("TextButton")
-    toggleButton.Parent = toggleFrame
-    toggleButton.Size = UDim2.new(0.2, 0, 1, 0)
-    toggleButton.Position = UDim2.new(0.8, 0, 0, 0)
-    toggleButton.BackgroundColor3 = theme3
-    toggleButton.Text = "Off"
-
-    toggleButton.MouseButton1Click:Connect(function()
-        local state = toggleButton.Text == "Off"
-        toggleButton.Text = state and "On" or "Off"
-        callback(state)
-    end)
-end
-
-function MatterPlugUI:CreateCheckbox(parent, text, theme2, theme3, callback)
-    local checkboxFrame = Instance.new("Frame")
-    checkboxFrame.Parent = parent
-    checkboxFrame.BackgroundColor3 = theme2
-    checkboxFrame.Size = UDim2.new(0, 200, 0, 30)
-
-    local checkboxText = Instance.new("TextLabel")
-    checkboxText.Parent = checkboxFrame
-    checkboxText.Text = text
-    checkboxText.Size = UDim2.new(0.8, 0, 1, 0)
-    checkboxText.TextColor3 = theme3
-    checkboxText.BackgroundTransparency = 1
-
-    local checkbox = Instance.new("TextButton")
-    checkbox.Parent = checkboxFrame
-    checkbox.Size = UDim2.new(0.2, 0, 1, 0)
-    checkbox.Position = UDim2.new(0.8, 0, 0, 0)
-    checkbox.BackgroundColor3 = theme3
-    checkbox.Text = ""
-
-    local checked = false
-    checkbox.MouseButton1Click:Connect(function()
-        checked = not checked
-        checkbox.Text = checked and "✔" or ""
-        callback(checked)
-    end)
-end
-
-function MatterPlugUI:CreateButton(parent, text, theme2, theme3, callback)
+-- Create a button inside the window
+function MatterPlugUI:CreateButton(parentWindow, buttonText, callback)
     local button = Instance.new("TextButton")
-    button.Parent = parent
-    button.Text = text
     button.Size = UDim2.new(0, 200, 0, 50)
-    button.BackgroundColor3 = theme2
-    button.TextColor3 = theme3
+    button.Position = UDim2.new(0.5, -100, 0.5, -25)
+    button.Text = buttonText
+    button.BackgroundColor3 = Color3.fromRGB(100, 100, 255)
+    button.TextColor3 = Color3.fromRGB(255, 255, 255)
+    button.TextSize = 20
+    button.Parent = parentWindow
 
     button.MouseButton1Click:Connect(function()
         callback()
     end)
+
+    return button
 end
 
+-- Return the library
 return MatterPlugUI
